@@ -16,12 +16,25 @@ RUN apk --update add --no-cache bash=5.0.0-r0 \
                                 patch=2.7.6-r6 \
                                 postgresql-client=11.6-r0 \
                                 ssmtp=2.64-r14 \
-                                zlib-dev=1.2.11-r1
-
+                                zlib-dev=1.2.11-r1\
+                                nginx \
+                                supervisor
 COPY docker/conf/ssmtp.conf /etc/ssmtp/ssmtp.conf
+# Configure supervisord
+COPY docker/conf/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 RUN echo "hostname=drupalwxt.github.io" >> /etc/ssmtp/ssmtp.conf
 RUN echo 'sendmail_path = "/usr/sbin/ssmtp -t"' > /usr/local/etc/php/conf.d/mail.ini
 COPY docker/conf/php.ini /usr/local/etc/php/php.ini
+# Configure nginx
+COPY docker/conf/nginx.conf /etc/nginx/nginx.conf
+# Remove default server definition
+RUN rm /etc/nginx/conf.d/default.conf
+# Make sure files/folders needed by the processes are accessable when they run under the nobody user
+RUN chown -R nobody.nobody /run && \
+  chown -R nobody.nobody /var/lib/nginx && \
+  chown -R nobody.nobody /var/tmp/nginx && \
+  chown -R nobody.nobody /var/log/nginx
 
 # Install additional php extensions
 RUN apk add --update --no-cache icu=64.2-r0 \
@@ -82,3 +95,9 @@ RUN ln -s /var/www/vendor/drush/drush/drush /usr/local/bin/drush
 
 # Reset Cache
 RUN php -r 'opcache_reset();'
+
+# Expose the port nginx is reachable on
+EXPOSE 8080
+
+# Let supervisord start nginx & php-fpm
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
