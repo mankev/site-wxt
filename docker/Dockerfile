@@ -97,7 +97,7 @@ RUN ln -s /var/www/vendor/drush/drush/drush /usr/local/bin/drush
 RUN php -r 'opcache_reset();'
 
 # Expose the port nginx is reachable on
-EXPOSE 8080
+EXPOSE 8082
 
 # Let supervisord start nginx & php-fpm
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+#CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
