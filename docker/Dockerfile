@@ -12,12 +12,13 @@ HEALTHCHECK --interval=5s --timeout=10s --start-period=5s --retries=3 CMD [ "php
 RUN apk --update add --no-cache bash=5.0.0-r0 \
                                 git=2.22.0-r0 \
                                 gzip=1.10-r0 \
-                                mysql-client=10.3.18-r0 \
+                                mysql-client=10.3.20-r0 \
                                 patch=2.7.6-r6 \
                                 postgresql-client=11.6-r0 \
                                 ssmtp=2.64-r14 \
                                 zlib-dev=1.2.11-r1\
                                 nginx \
+                                openrc \
                                 supervisor
 COPY docker/conf/ssmtp.conf /etc/ssmtp/ssmtp.conf
 # Configure supervisord
@@ -97,7 +98,8 @@ RUN ln -s /var/www/vendor/drush/drush/drush /usr/local/bin/drush
 RUN php -r 'opcache_reset();'
 
 # Expose the port nginx is reachable on
-EXPOSE 8082
+EXPOSE 80
 
 # Let supervisord start nginx & php-fpm
-#CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
