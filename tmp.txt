@@ -1,0 +1,86 @@
+Sending build context to Docker daemon  1.015MB
+Step 1/28 : FROM drupal:8.7-fpm-alpine
+ ---> 8c51cfffa872
+Step 2/28 : RUN apk --update add fcgi     && wget -O /usr/local/bin/php-fpm-healthcheck https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/master/php-fpm-healthcheck     && chmod +x /usr/local/bin/php-fpm-healthcheck
+ ---> Using cache
+ ---> 54d872732a43
+Step 3/28 : COPY docker/conf/php-fpm/status.conf /usr/local/etc/php-fpm.d/
+ ---> Using cache
+ ---> 9dc10285d92b
+Step 4/28 : HEALTHCHECK --interval=5s --timeout=10s --start-period=5s --retries=3 CMD [ "php-fpm-healthcheck" ]
+ ---> Using cache
+ ---> 0408925b16b2
+Step 5/28 : RUN apk --update add --no-cache bash=5.0.0-r0                                 git=2.22.2-r0                                 gzip=1.10-r0                                 mysql-client=10.3.20-r0                                 patch=2.7.6-r6                                 postgresql-client=11.6-r0                                 ssmtp=2.64-r14                                 zlib-dev=1.2.11-r1
+ ---> Using cache
+ ---> ee00ffdc7de6
+Step 6/28 : COPY docker/conf/ssmtp.conf /etc/ssmtp/ssmtp.conf
+ ---> Using cache
+ ---> 148b94bd67ca
+Step 7/28 : RUN echo "hostname=drupalwxt.github.io" >> /etc/ssmtp/ssmtp.conf
+ ---> Using cache
+ ---> 4d3d3d5a9307
+Step 8/28 : RUN echo 'sendmail_path = "/usr/sbin/ssmtp -t"' > /usr/local/etc/php/conf.d/mail.ini
+ ---> Using cache
+ ---> 7def05e5f80b
+Step 9/28 : COPY /docker/conf/php.ini /usr/local/etc/php/php.ini
+ ---> Using cache
+ ---> 413987818d36
+Step 10/28 : RUN apk add --update --no-cache icu=64.2-r0                                 icu-libs=64.2-r0                                 libzip-dev=1.5.2-r0;         apk add --no-cache --virtual .build-deps icu-dev=64.2-r0;         docker-php-ext-configure zip         --with-zlib-dir=/usr;         docker-php-ext-install -j "$(nproc)"         bcmath         intl         zip;         apk del .build-deps
+ ---> Using cache
+ ---> 520ed688d008
+Step 11/28 : ENV COMPOSER_ALLOW_SUPERUSER 1
+ ---> Using cache
+ ---> 789a528e090b
+Step 12/28 : ENV COMPOSER_VERSION 1.8.1
+ ---> Using cache
+ ---> 23868f29bf06
+Step 13/28 : ENV COMPOSER_MEMORY_LIMIT -1
+ ---> Using cache
+ ---> 5088c32658ca
+Step 14/28 : ENV COMPOSER_EXIT_ON_PATCH_FAILURE 1
+ ---> Using cache
+ ---> 4e40b13abc42
+Step 15/28 : RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer;     curl -o /tmp/composer-setup.sig https://composer.github.io/installer.sig;     php -r "if (hash('SHA384', file_get_contents('/tmp/composer-setup.php')) !== trim(file_get_contents('/tmp/composer-setup.sig'))) { unlink('/tmp/composer-setup.php'); echo 'Invalid installer' . PHP_EOL; exit(1); }"
+ ---> Using cache
+ ---> 737dc2d848fc
+Step 16/28 : RUN php /tmp/composer-setup.php --no-ansi                                 --install-dir=/usr/local/bin                                 --filename=composer                                 --version=${COMPOSER_VERSION};     rm -rf /tmp/composer-setup.php
+ ---> Using cache
+ ---> be213230d137
+Step 17/28 : RUN rm -f /var/www/composer.lock;     rm -rf /root/.composer
+ ---> Using cache
+ ---> 04cf913098d0
+Step 18/28 : RUN rm -rf /var/www/*
+ ---> Using cache
+ ---> 044823d90347
+Step 19/28 : COPY scripts/ScriptHandler.php /var/www/scripts/ScriptHandler.php
+ ---> Using cache
+ ---> dcbb50f0849d
+Step 20/28 : COPY composer.json /var/www/composer.json
+ ---> Using cache
+ ---> 948850d1d57e
+Step 21/28 : COPY composer.lock /var/www/composer.lock
+ ---> Using cache
+ ---> 8922eefc307c
+Step 22/28 : WORKDIR /var/www
+ ---> Using cache
+ ---> 9b03f1eeee3b
+Step 23/28 : RUN composer global require "hirak/prestissimo:^0.3";     composer install --prefer-dist                      --no-interaction
+ ---> Using cache
+ ---> 9d1825af105f
+Step 24/28 : WORKDIR /var/www/html
+ ---> Using cache
+ ---> 6b9657ae0be4
+Step 25/28 : RUN chown -R www-data:www-data sites/default
+ ---> Using cache
+ ---> 526bd6a98d6d
+Step 26/28 : RUN echo "export TERM=xterm" >> ~/.bashrc
+ ---> Using cache
+ ---> 4073c7f99379
+Step 27/28 : RUN ln -s /var/www/vendor/drush/drush/drush /usr/local/bin/drush
+ ---> Using cache
+ ---> 272d4df2ab06
+Step 28/28 : RUN php -r 'opcache_reset();'
+ ---> Using cache
+ ---> 94132a040cd2
+Successfully built 94132a040cd2
+Successfully tagged site-wxt-ngingx5:v3

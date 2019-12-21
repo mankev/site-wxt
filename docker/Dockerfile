@@ -21,7 +21,7 @@ RUN apk --update add --no-cache bash=5.0.0-r0 \
 COPY docker/conf/ssmtp.conf /etc/ssmtp/ssmtp.conf
 RUN echo "hostname=drupalwxt.github.io" >> /etc/ssmtp/ssmtp.conf
 RUN echo 'sendmail_path = "/usr/sbin/ssmtp -t"' > /usr/local/etc/php/conf.d/mail.ini
-COPY docker/conf/php.ini /usr/local/etc/php/php.ini
+COPY /docker/conf/php.ini /usr/local/etc/php/php.ini
 
 # Install additional php extensions
 RUN apk add --update --no-cache icu=64.2-r0 \

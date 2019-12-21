@@ -87,11 +87,11 @@
  * @endcode
  */
 $databases['default']['default'] = array (
-  'database' => 'wxt',
-  'username' => 'root',
-  'password' => 'root',
+  'database' => 'drupal5',
+  'username' => 'mankev@mysqlpost',
+  'password' => 'Kxm021661@12',
   'prefix' => '',
-  'host' => 'db',
+  'host' => 'mysqlpost.mysql.database.azure.com',
   'port' => '3306',
   'namespace' => 'Drupal\Core\Database\Driver\mysql',
   'driver' => 'mysql',
